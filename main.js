@@ -4,7 +4,6 @@ import { promisify } from 'util';
 import { program } from 'commander';
 
 import { ls, up, cd } from './commands/navigation.js'
-import { calcHash, compress, decompress} from './commands/hash and com decom.js';
 
 
 const pipeline = promisify(_pipeline);
@@ -38,15 +37,6 @@ const usernames = async _ => {
                 break;
             case "up":
                 up();
-                break;
-            case "calcHash":
-                calcHash(arr[1].toString("utf-8"));
-                break;
-            case "compress":
-                compress(arr[1], arr[2])
-                break;
-            case 'decompress':
-                decompress(arr[1], arr[2])
                 break;
             case ".exit":
                 process.exit(0);
