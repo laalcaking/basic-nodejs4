@@ -6,6 +6,7 @@ import { program } from 'commander';
 import { ls, up, cd } from './commands/navigation.js'
 import { calcHash, compress, decompress} from './commands/hash and com decom.js';
 import { rm, cat, add, rn, cp, mv } from './commands/Basic operations with files.js'
+import { EOL, architecture, cpus, homedir, username_pc} from './commands/Operation system info.js'
 
 
 const pipeline = promisify(_pipeline);
@@ -69,6 +70,27 @@ const usernames = async _ => {
                 break;
             case ".exit":
                 process.exit(0);
+            case "os":
+                switch(arr[1]){
+                    case '--EOL':
+                        EOL();
+                        break;
+                    case '--cpus':
+                        cpus();
+                        break;
+                    case '--homedir':
+                        homedir();
+                        break;
+                    case '--username':
+                        username_pc();
+                        break;
+                    case '--architecture':
+                        architecture();
+                        break;
+                    default:
+                        console.log("Ошибка, операция введена не верно")
+                }
+                break;
             default:
                 console.log("Ошибка "+ input)
         }

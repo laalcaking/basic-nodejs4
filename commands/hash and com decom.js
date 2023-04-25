@@ -3,21 +3,25 @@ import * as fs from 'fs'
 import { createGzip, createGunzip } from 'zlib'
 
 export async function calcHash(filePath){
-    const hash = crypto.createHash('sha256');
-    const stream = createReadStream(filePath);
+    try {
+        const hash = crypto.createHash('sha256');
+        const stream = createReadStream(filePath);
 
-    stream.on('data', (chunk) => {
-        hash.update(chunk); // Обновляем хэш каждый раз при получении новых данных
-    });
+        stream.on('data', (chunk) => {
+            hash.update(chunk); // Обновляем хэш каждый раз при получении новых данных
+        });
 
-    stream.on('end', () => {
-        const result = hash.digest('hex'); // Получаем окончательное значение хэша в виде строки
-        console.log(`Хэш файла ${filePath}: ${result}`);
-    });
-      
-    stream.on('error', (err) => {
-        console.error(`Ошибка чтения файла: ${err.message}`);
-    });
+        stream.on('end', () => {
+            const result = hash.digest('hex'); // Получаем окончательное значение хэша в виде строки
+            console.log(`Хэш файла ${filePath}: ${result}`);
+        });
+        
+        stream.on('error', (err) => {
+            console.error(`Ошибка чтения файла: ${err.message}`);
+        });
+    } catch (err) {
+        console.error(`Ошибка: ${err}`);
+    }
 
 }
 
