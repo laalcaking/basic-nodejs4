@@ -1,6 +1,6 @@
 import crypto from 'crypto'
-import { createReadStream, createWriteStream  } from 'fs'
-import { createGzip, createUnzip } from 'zlib'
+import * as fs from 'fs'
+import { createGzip, createGunzip } from 'zlib'
 
 export async function calcHash(filePath){
     const hash = crypto.createHash('sha256');
@@ -22,30 +22,51 @@ export async function calcHash(filePath){
 }
 
 export function compress(source, destination){
+    try {
+        const inputFile = fs.createReadStream(source);
+        inputFile.on('error', (err) => {
+            console.error(`Ошибка чтения файла: ${err}`);
+        });
 
-    try{  
+        const outputFile = fs.createWriteStream(destination + '.gz');
+        outputFile.on('error', (err) => {
+            console.error(`Ошибка записи файла: ${err}`);
+        });
 
-        const inputFile = createReadStream(source)
-        const outputFile = createWriteStream(destination+".gz") 
+        const gzip = createGzip();
+        gzip.on('error', (err) => {
+            console.error(`Ошибка сжатия файла: ${err}`);
+        });
 
-        inputFile.pipe(createGzip()).pipe(outputFile)
-        console.log("Файл успешно сжат!")
+        inputFile.pipe(gzip).pipe(outputFile);
+
+        console.log('Файл успешно сжат!');
     } catch (err) {
-        console.log("Файл не сжат " + err)
+        console.error(`Ошибка при сжатии файла: ${err}`);
     }
-
 }
 
 export function decompress(source, destination){
+    try {
+        const inputFile = fs.createReadStream(source);
+        inputFile.on('error', (err) => {
+            console.error(`Ошибка чтения файла: ${err}`);
+        });
 
-    try{
-        const inputFile = createReadStream(source)
-        const outputFile = createWriteStream(destination+".txt")
+        const outputFile = fs.createWriteStream(destination + '.txt');
+        outputFile.on('error', (err) => {
+            console.error(`Ошибка записи файла: ${err}`);
+        });
 
-        inputFile.pipe(createUnzip()).pipe(outputFile)
-        console.log("Файл успешно распакован")  
+        const gunzip = createGunzip();
+        gunzip.on('error', (err) => {
+            console.error(`Ошибка распаковки файла: ${err}`);
+        });
+
+        inputFile.pipe(gunzip).pipe(outputFile);
+
+        console.log('Файл успешно распакован!');
     } catch (err) {
-        console.log("Файл не распакован " + err)
+        console.error(`Ошибка при распаковке файла: ${err}`);
     }
-    
 }
