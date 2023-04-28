@@ -1,37 +1,35 @@
-import { createReadStream, createWriteStream } from 'fs';
 import { pipeline as _pipeline } from 'stream';
-import { promisify } from 'util';
-import { program } from 'commander';
 
 import { ls, up, cd } from './commands/navigation.js'
 import { calcHash, compress, decompress} from './commands/hash and com decom.js';
 import { rm, cat, add, rn, cp, mv } from './commands/Basic operations with files.js'
 import { EOL, architecture, cpus, homedir, username_pc} from './commands/Operation system info.js'
 
+const args = process.argv.slice(2);
+const usernameIndex = args.findIndex(arg => arg.startsWith('--username='));
+if (usernameIndex === -1) {
+    console.error('Не указано имя пользователя. Используйте "--username=your_username".');
+    process.exit(1);
+}
+const username = args[usernameIndex].split('=')[1];
+process.stdout.write(`Добро пожаловать в диспетчер файлов ${username} \n`)
+const currentDirectory = process.cwd();
+console.log(`В настоящий момент вы находитесь в: ${currentDirectory}`);
 
-const pipeline = promisify(_pipeline);
+process.stdin.setEncoding('utf8');
+process.on('exit', _ => console.log(`Благодорим вас за использование, ${username}, Досвидания!`));
+process.on('SIGINT', _ => { process.exit(0); });
 
-const usernames = async _ => {
-    
-    const { username } = program.opts();
-    process.stdout.write(`Добро пожаловать в диспетчер файлов ${username} \n`)
-    const currentDirectory = process.cwd();
-    console.log(`В настоящий момент вы находитесь в: ${currentDirectory}`);
-
-    process.stdin.setEncoding('utf8');
-    process.on('exit', _ => console.log(`Благодорим вас за использование, ${username}, Досвидания!`));
-    process.on('SIGINT', _ => { process.exit(0); });
-
-    while (true) {
+while (true) {
         
-        const input = await new Promise(resolve => {
-          process.stdin.once('data', data => {
-            resolve(data.trim());
-          });
-        });
+    const input = await new Promise(resolve => {
+      process.stdin.once('data', data => {
+        resolve(data.trim());
+      });
+    });
         
-        const arr = input.split(' ');
-        switch(arr[0].toString("utf-8")) {
+    const arr = input.split(' ');
+    switch(arr[0].toString("utf-8")) {
             case "ls":
                 ls();
                 break;
@@ -93,13 +91,7 @@ const usernames = async _ => {
                 break;
             default:
                 console.log("Ошибка "+ input)
-        }
-        const currentDirectory = process.cwd();
-        console.log(`В настоящий момент вы находитесь в: ${currentDirectory}`);
     }
+    const currentDirectory = process.cwd();
+    console.log(`В настоящий момент вы находитесь в: ${currentDirectory}`);
 }
-
-program
-    .requiredOption('--username <username>', 'login')
-        .action(usernames)
-    .parse(process.argv);
